@@ -2,6 +2,7 @@ import pygame
 from PIL import Image
 import numpy as np
 import time
+
 BG = pygame.Color(15, 15, 15) #Black (but not too much)
 TARGET_COLOR = pygame.Color(255, 255, 0) #Yellow
 WALL_COLOR = pygame.Color(255, 0, 0)
@@ -19,6 +20,7 @@ class Simulator:
         #Max/min wall length is a percentage of space height
         self.max_wall_len = 0.7
         self.min_wall_len = 0.3
+
         self.w = space_shape[0]
         self.h = space_shape[1]
 
@@ -27,15 +29,12 @@ class Simulator:
         self.dh = self.render_space_shape[1]/self.h
 
         self.screen = pygame.display.set_mode(self.render_space_shape)
-        #self.map_bitmap = map_bitmap
-        #self.map = np.asarray(Image.open('example-map.bmp'))
-        #self.map = np.unpackbits(self.map, axis=2)
         self.map = np.zeros((self.w, self.h))
 
-        self.generateWalls()
-        self.generateTargets()
+        self._generateWalls()
+        self._generateTargets()
 
-    def generateWalls(self):
+    def _generateWalls(self):
         #We generate nwalls based on the x, with a random lenght
         #This has to be done BEFORE picking the targets
         #That's not the best method and it is NOT guarenteed to work
@@ -71,7 +70,7 @@ class Simulator:
 
             i+=1
 
-    def generateTargets(self):
+    def _generateTargets(self):
         #We pick ntargets points in the space
         self.targets_mask = np.full((self.w, self.h), False)
         i = 0
@@ -87,7 +86,6 @@ class Simulator:
         self.map[self.targets_mask] = TARGET
 
     def render(self):
-        #render_map = np.array
         self.screen.fill(BG)
         for x in range(self.w):
             for y in range(self.h):
