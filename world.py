@@ -55,14 +55,14 @@ class World:
 
             #Check if a path is possible
             #Doesn't work properly
-            sum = self.map[x, wall_arr]
+            sum_ = self.map[x, wall_arr]
             if x != 0:
-                sum += self.map[x-1, wall_arr]
+                sum_ += self.map[x-1, wall_arr]
             if x != self.__w-1:
-                sum += self.map[x+1, wall_arr]
+                sum_ += self.map[x+1, wall_arr]
                 
-            sum = np.max(sum)
-            if sum > utils.WALL:
+            sum_ = np.max(sum_)
+            if sum_ > utils.WALL:
                 self.map[x, wall_arr if not reverse else ~wall_arr] = 0
                 continue 
 
