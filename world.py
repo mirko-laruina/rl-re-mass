@@ -3,7 +3,21 @@ from agent import Agent
 import utils
 
 class World:
-    def __init__(self, space_shape, batch_size, agent_size, ntargets, nwalls):
+    def __init__(self, space_shape,
+                batch_size, agent_size,
+                ntargets, nwalls,
+                stig_evaporation_speed):
+        """
+        space_shape: shape of the explorable space
+        batch_size: number of agents
+        agent_size: width of an agent (which is assumed as a square)
+        ntargets: number of targets randomly generated
+        nwalls: number of walls randomly generated
+        observation_range: space observable by a single agent,
+                            calculated from its side (approximated along the diagonal)
+        stig_evaporation_speed: speed at which stigmergy evaporates
+        
+        """
         self.__batch_size = batch_size
         self.__agent_size = agent_size
         self.__agents = []

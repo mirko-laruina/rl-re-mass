@@ -4,13 +4,19 @@ import time
 import utils
 
 class Simulator:
-    def __init__(self, space_shape, batch_size, agent_size, ntargets, nwalls, rendering):
+    def __init__(self, space_shape,
+                batch_size, agent_size,
+                ntargets, nwalls,
+                stig_evaporation_speed, max_steps,
+                rendering):
         self.__world = World(space_shape, batch_size,
                             agent_size, ntargets,
-                            nwalls)
+                            nwalls, stig_evaporation_speed)
 
         self.__rendering = rendering
         self.__render_space_shape = (1000, 1000)
+
+        self.__max_steps = max_steps
 
         self.__w = space_shape[1]
         self.__h = space_shape[0]
