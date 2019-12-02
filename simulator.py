@@ -20,6 +20,8 @@ class Simulator:
     
         self.__screen = pygame.display.set_mode(self.__render_space_shape)
 
+    def move(self):
+        self.__world.move()
 
     def render(self):
         if self.__rendering:
@@ -38,12 +40,17 @@ class Simulator:
                                             int(self.__dw), int(self.__dh))
                         pygame.draw.rect(self.__screen, utils.TARGET_COLOR, rect)
 
-                    # Draw agents
-                    if self.__world.agent_layer[x, y] == 1:
-                        rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+            # Draw agents
+            ## TODO: test if returning a custom struct instead of the whole agents is slower or not
+            agents = self.__world.get_agents()
+            for agent in agents:
+                x, y = agent.get_pos()
+                for i in range(x, x+agent.get_size()):
+                    for j in range(y, y+agent.get_size()):
+                        rect = pygame.Rect(int(self.__dw*i), int(self.__dh*j),
                                             int(self.__dw), int(self.__dh))
                         pygame.draw.rect(self.__screen, utils.AGENT_COLOR, rect)
-
+ 
 
             events = pygame.event.get()
             for event in events:

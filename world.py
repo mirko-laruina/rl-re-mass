@@ -17,7 +17,6 @@ class World:
         self.__h = space_shape[0]
 
         self.map = np.zeros((self.__w, self.__h))
-        self.agent_layer = np.copy(self.map)
 
         self.__generate_walls()
         self.__generate_targets()
@@ -101,7 +100,7 @@ class World:
                     return False
         return True
 
-    def __check_agent_move(self, x, y, agent_size = 1):
+    def check_agent_move(self, x, y, agent_size = 1):
         """
         Check if agent can move in the position described by parameters
         """
@@ -113,11 +112,6 @@ class World:
         
         return True
 
-    def __draw_agent(self, x, y, agent_size = 1):
-        for i in range(x, x+agent_size):
-            for j in range(y, y+agent_size):
-                self.agent_layer[i, j] = 1
-
     def __initiate_agents(self):
         """
         Initialization of all the agents
@@ -127,10 +121,16 @@ class World:
             x = self.__get_rand_x()
             y = self.__get_rand_y()
             #Check if the random position is not on the border or on walls
-            if not self.__check_agent_move(x, y, self.__agent_size):
+            if not self.check_agent_move(x, y, self.__agent_size):
                 continue
 
-            self.__agents.append(Agent(x, y, self.__agent_size))
-            self.__draw_agent(x, y, self.__agent_size)
+            self.__agents.append(Agent(self, x, y, self.__agent_size))
 
             i+=1
+
+    def get_agents(self):
+        return self.__agents
+
+    def move(self):
+        for i in range(len(self.__agents)):
+            self.__agents[i].move()
