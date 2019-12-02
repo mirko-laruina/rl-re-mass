@@ -6,6 +6,7 @@ class World:
     def __init__(self, space_shape,
                 batch_size, agent_size,
                 ntargets, nwalls,
+                observation_range,
                 stig_evaporation_speed):
         """
         space_shape: shape of the explorable space
@@ -20,6 +21,7 @@ class World:
         """
         self.__batch_size = batch_size
         self.__agent_size = agent_size
+        self.__agent_obs_range = observation_range
         self.__agents = []
         self.__ntargets = ntargets
         self.__nwalls = nwalls
@@ -138,7 +140,7 @@ class World:
             if not self.check_agent_move(x, y, self.__agent_size):
                 continue
 
-            self.__agents.append(Agent(self, x, y, self.__agent_size))
+            self.__agents.append(Agent(self, x, y, self.__agent_size, self.__agent_obs_range))
 
             i+=1
 
