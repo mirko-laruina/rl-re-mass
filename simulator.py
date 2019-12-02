@@ -26,6 +26,8 @@ class Simulator:
         self.__dh = self.__render_space_shape[1]/space_shape[0]
 
         self.__screen = pygame.display.set_mode(self.__render_space_shape)
+        self.__overlay = pygame.Surface(self.__render_space_shape)
+        self.__overlay.set_alpha(64)
 
     def move(self):
         self.__world.move()
@@ -33,6 +35,7 @@ class Simulator:
     def render(self):
         if self.__rendering:
             self.__screen.fill(utils.BG)
+            self.__overlay.fill(utils.OVERLAY_FILL)
             for x in range(self.__w):
                 for y in range(self.__h):
                     ## TODO: Using custom structures with walls and target instead of iterating
@@ -56,15 +59,13 @@ class Simulator:
                 x, y = agent.get_pos()
                 size = agent.get_size()
                 range_ = agent.get_obs_range()
-                for i in range(x-range_, x+size+range_):
-                    for j in range(y-range_, y+size+range_):
-                        rect = pygame.Rect(int(self.__dw*i), int(self.__dh*j),
-                                            int(self.__dw), int(self.__dh))
-                        if (i < x or i > x+size-1) or (j < y or j > y+size-1):
-                            pygame.draw.rect(self.__screen, utils.OBS_HALO, rect)
-                        else:
-                            pygame.draw.rect(self.__screen, utils.AGENT_COLOR, rect)
-
+                rect = pygame.Rect(int(self.__dw*(x-range_)), int(self.__dh*(y-range_)),
+                                   int(self.__dw)*(2*range_+size), int(self.__dh)*(2*range_+size))
+                self.__screen.blit(self.__overlay, rect, area=rect)
+                #pygame.draw.rect(self.__screen, utils.OBS_HALO, rect)
+                rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                   int(self.__dw)*size, int(self.__dh)*size)
+                pygame.draw.rect(self.__screen, utils.AGENT_COLOR, rect)
 
             events = pygame.event.get()
             for event in events:
