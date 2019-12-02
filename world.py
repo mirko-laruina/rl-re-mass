@@ -33,6 +33,9 @@ class World:
         self.__h = space_shape[0]
 
         self.map = np.zeros((self.__w, self.__h))
+        self.stig_wall = np.copy(self.map)
+        self.stig_boundary = np.copy(self.map)
+        self.stig_target = np.copy(self.map)
 
         self.__generate_walls()
         self.__generate_targets()
@@ -115,6 +118,16 @@ class World:
                 if self.map[i, j] != 0:
                     return False
         return True
+
+    def observe(self, x, y, size):
+        obs_matrix = np.zeros((size, size))
+        for i in range(x, x+size):
+            for j in range(y, y+size):
+                if i < 0 or i >= self.__w or j < 0 or j >= self.__h:
+                    obs_matrix[i-x, j-y] = utils.NO_MAP
+                    continue
+                obs_matrix[i-x, j-y] = self.map[i, j]
+        return obs_matrix
 
     def check_agent_move(self, x, y, agent_size = 1):
         """

@@ -26,8 +26,14 @@ class Simulator:
         self.__dh = self.__render_space_shape[1]/space_shape[0]
 
         self.__screen = pygame.display.set_mode(self.__render_space_shape)
-        self.__overlay = pygame.Surface(self.__render_space_shape)
-        self.__overlay.set_alpha(64)
+        self.__overlay_obs = pygame.Surface(self.__render_space_shape)
+        self.__overlay_stig_wall = pygame.Surface(self.__render_space_shape)
+        self.__overlay_stig_boundary = pygame.Surface(self.__render_space_shape)
+        self.__overlay_stig_target = pygame.Surface(self.__render_space_shape)
+        self.__overlay_obs.set_alpha(64)
+        self.__overlay_stig_wall.set_alpha(128)
+        self.__overlay_stig_boundary.set_alpha(128)
+        self.__overlay_stig_target.set_alpha(128)
 
     def move(self):
         self.__world.move()
@@ -35,7 +41,11 @@ class Simulator:
     def render(self):
         if self.__rendering:
             self.__screen.fill(utils.BG)
-            self.__overlay.fill(utils.OVERLAY_FILL)
+            self.__overlay_obs.fill(utils.OVERLAY_OBS)
+            self.__overlay_stig_wall.fill(utils.OVERLAY_STIG_WALL)
+            self.__overlay_stig_boundary.fill(utils.OVERLAY_STIG_BOUNDARY)
+            self.__overlay_stig_target.fill(utils.OVERLAY_STIG_TARGET)
+
             for x in range(self.__w):
                 for y in range(self.__h):
                     ## TODO: Using custom structures with walls and target instead of iterating
@@ -52,6 +62,22 @@ class Simulator:
                                             int(self.__dw), int(self.__dh))
                         pygame.draw.rect(self.__screen, utils.TARGET_COLOR, rect)
 
+                    # Blit stig
+                    if self.__world.stig_boundary[x, y] != 0:
+                        rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                            int(self.__dw), int(self.__dh))
+                        self.__screen.blit(self.__overlay_stig_boundary, rect, area=rect)
+                    
+                    if self.__world.stig_wall[x, y] != 0:
+                        rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                            int(self.__dw), int(self.__dh))
+                        self.__screen.blit(self.__overlay_stig_wall, rect, area=rect)
+
+                    if self.__world.stig_target[x, y] != 0:
+                        rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                            int(self.__dw), int(self.__dh))
+                        self.__screen.blit(self.__overlay_stig_target, rect, area=rect)
+
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
             agents = self.__world.get_agents()
@@ -59,10 +85,11 @@ class Simulator:
                 x, y = agent.get_pos()
                 size = agent.get_size()
                 range_ = agent.get_obs_range()
+
                 rect = pygame.Rect(int(self.__dw*(x-range_)), int(self.__dh*(y-range_)),
                                    int(self.__dw)*(2*range_+size), int(self.__dh)*(2*range_+size))
-                self.__screen.blit(self.__overlay, rect, area=rect)
-                #pygame.draw.rect(self.__screen, utils.OBS_HALO, rect)
+                self.__screen.blit(self.__overlay_obs, rect, area=rect)
+
                 rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                    int(self.__dw)*size, int(self.__dh)*size)
                 pygame.draw.rect(self.__screen, utils.AGENT_COLOR, rect)
