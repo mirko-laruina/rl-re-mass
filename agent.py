@@ -24,14 +24,16 @@ class Agent:
         base_y = self.__y-self.__obs_range
         size = self.__size+self.__obs_range*2
         obs_matrix = self.__world.observe(base_x, base_y, size)
+
+        # Release should be done at x+size/2, not x (same for y)
         for i in range(obs_matrix.shape[0]):
             for j in range(obs_matrix.shape[1]):
                 if obs_matrix[i, j] == utils.NO_MAP:
-                    self.__world.stig_boundary[self.__x, self.__y] = 1
+                    self.__world.stig_boundary[self.__x, self.__y] = 255
                 if obs_matrix[i, j] == utils.WALL:
-                    self.__world.stig_wall[self.__x, self.__y] = 1
+                    self.__world.stig_wall[self.__x, self.__y] = 255
                 if obs_matrix[i, j] == utils.TARGET:
-                    self.__world.stig_target[self.__x, self.__y] = 1
+                    self.__world.stig_target[self.__x, self.__y] = 255
 
     def move(self):
         #Temporary
@@ -40,5 +42,4 @@ class Agent:
         if(self.__world.check_agent_move(new_x, new_y, self.__size)):
             self.__x = new_x
             self.__y = new_y
-
-        self.release_pheromone()
+            self.release_pheromone()

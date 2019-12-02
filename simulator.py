@@ -27,9 +27,9 @@ class Simulator:
 
         self.__screen = pygame.display.set_mode(self.__render_space_shape)
         self.__overlay_obs = pygame.Surface(self.__render_space_shape)
-        self.__overlay_stig_wall = pygame.Surface(self.__render_space_shape)
-        self.__overlay_stig_boundary = pygame.Surface(self.__render_space_shape)
-        self.__overlay_stig_target = pygame.Surface(self.__render_space_shape)
+        self.__overlay_stig_wall = pygame.Surface(self.__render_space_shape, pygame.SRCALPHA)
+        self.__overlay_stig_boundary = pygame.Surface(self.__render_space_shape, pygame.SRCALPHA)
+        self.__overlay_stig_target = pygame.Surface(self.__render_space_shape, pygame.SRCALPHA)
         self.__overlay_obs.set_alpha(64)
         self.__overlay_stig_wall.set_alpha(128)
         self.__overlay_stig_boundary.set_alpha(128)
@@ -38,18 +38,20 @@ class Simulator:
     def move(self):
         self.__world.move()
 
+    def get_shadow(self, color, alpha):
+        color.a = int(alpha)
+        return color
+
     def render(self):
         if self.__rendering:
             self.__screen.fill(utils.BG)
             self.__overlay_obs.fill(utils.OVERLAY_OBS)
-            self.__overlay_stig_wall.fill(utils.OVERLAY_STIG_WALL)
-            self.__overlay_stig_boundary.fill(utils.OVERLAY_STIG_BOUNDARY)
-            self.__overlay_stig_target.fill(utils.OVERLAY_STIG_TARGET)
+            self.__overlay_stig_wall.fill(utils.EMPTY)
+            self.__overlay_stig_boundary.fill(utils.EMPTY)
+            self.__overlay_stig_target.fill(utils.EMPTY)
 
             for x in range(self.__w):
                 for y in range(self.__h):
-                    ## TODO: Using custom structures with walls and target instead of iterating
-                    ## on the entire matrix (just like with agents)
                     # Draw walls
                     if self.__world.map[x, y] == utils.WALL:
                         rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
@@ -66,18 +68,28 @@ class Simulator:
                     if self.__world.stig_boundary[x, y] != 0:
                         rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                             int(self.__dw), int(self.__dh))
-                        self.__screen.blit(self.__overlay_stig_boundary, rect, area=rect)
+                        pygame.draw.rect(self.__overlay_stig_boundary,
+                                            self.get_shadow(utils.OVERLAY_STIG_BOUNDARY, self.__world.stig_boundary[x, y]), 
+                                            rect)
+                        self.__screen.blit(self.__overlay_stig_boundary, rect, rect)
                     
                     if self.__world.stig_wall[x, y] != 0:
                         rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                             int(self.__dw), int(self.__dh))
-                        self.__screen.blit(self.__overlay_stig_wall, rect, area=rect)
+                        pygame.draw.rect(self.__overlay_stig_wall,
+                                            self.get_shadow(utils.OVERLAY_STIG_WALL, self.__world.stig_wall[x, y]), 
+                                            rect)
+                        self.__screen.blit(self.__overlay_stig_wall, rect, rect)
 
                     if self.__world.stig_target[x, y] != 0:
                         rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                             int(self.__dw), int(self.__dh))
-                        self.__screen.blit(self.__overlay_stig_target, rect, area=rect)
+                        pygame.draw.rect(self.__overlay_stig_target,
+                                            self.get_shadow(utils.OVERLAY_STIG_TARGET, self.__world.stig_target[x, y]), 
+                                            rect)
+                        self.__screen.blit(self.__overlay_stig_target, rect, rect)
 
+            
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
             agents = self.__world.get_agents()

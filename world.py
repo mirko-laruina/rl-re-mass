@@ -25,6 +25,7 @@ class World:
         self.__agents = []
         self.__ntargets = ntargets
         self.__nwalls = nwalls
+        self.__stig_evaporation_speed = stig_evaporation_speed
         #Max/min wall length is a percentage of space height
         self.__max_wall_len = 0.7
         self.__min_wall_len = 0.3
@@ -163,3 +164,14 @@ class World:
     def move(self):
         for i in range(len(self.__agents)):
             self.__agents[i].move()
+            self.stig_evaporation()
+
+    def stig_evaporation(self):
+        self.stig_wall -= self.__stig_evaporation_speed
+        self.stig_wall[self.stig_wall < 0] = 0
+
+        self.stig_boundary -= self.__stig_evaporation_speed
+        self.stig_boundary[self.stig_boundary < 0] = 0
+
+        self.stig_target -= self.__stig_evaporation_speed
+        self.stig_target[self.stig_target < 0] = 0
