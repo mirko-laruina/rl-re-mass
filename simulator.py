@@ -14,27 +14,30 @@ class Simulator:
                             nwalls, observation_range,
                             stig_evaporation_speed)
 
-        self.__rendering = rendering
-        self.__render_space_shape = (1000, 1000)
-
         self.__max_steps = max_steps
 
         self.__w = space_shape[1]
         self.__h = space_shape[0]
-        #How much is the step in the render space
-        self.__dw = self.__render_space_shape[0]/space_shape[1]
-        self.__dh = self.__render_space_shape[1]/space_shape[0]
+        self.__rendering = rendering
 
-        self.__screen = pygame.display.set_mode(self.__render_space_shape)
-        self.__overlay_obs = pygame.Surface(self.__render_space_shape)
+        if self.__rendering:
+            self.__render_space_shape = (1000, 1000)
+            #How much is the step in the render space
+            self.__dw = self.__render_space_shape[0]/space_shape[1]
+            self.__dh = self.__render_space_shape[1]/space_shape[0]
 
-        self.__overlay_stig = []
-        for i in range(len(self.__world.stig_layers)):
-            self.__overlay_stig.append(pygame.Surface(self.__render_space_shape, pygame.SRCALPHA))
+            self.__screen = pygame.display.set_mode(self.__render_space_shape)
+            self.__overlay_obs = pygame.Surface(self.__render_space_shape)
 
-        self.__overlay_obs.set_alpha(64)
-        for layer in self.__overlay_stig:
-            layer.set_alpha(128)
+            self.__overlay_stig = []
+            for i in range(len(self.__world.stig_layers)):
+                self.__overlay_stig.append(pygame.Surface(self.__render_space_shape, pygame.SRCALPHA))
+
+            self.__overlay_obs.set_alpha(64)
+            for layer in self.__overlay_stig:
+                layer.set_alpha(128)
+            
+            self.__rend_blend = False
 
     def move(self):
         self.__world.move()
@@ -65,14 +68,15 @@ class Simulator:
                         pygame.draw.rect(self.__screen, utils.TARGET_COLOR, rect)
 
                     # Blit stig
-                    for i, layer in enumerate(self.__world.stig_layers):
-                        if layer.value(x, y) != 0:
-                            rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
-                                            int(self.__dw), int(self.__dh))
-                            pygame.draw.rect(self.__overlay_stig[i],
-                                            self.get_shadow(layer.color, layer.value(x, y)),
-                                            rect)
-                            self.__screen.blit(self.__overlay_stig[i], rect, rect)
+                    if self.__rend_blend:
+                        for i, layer in enumerate(self.__world.stig_layers):
+                            if layer.value(x, y) != 0:
+                                rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                                int(self.__dw), int(self.__dh))
+                                pygame.draw.rect(self.__overlay_stig[i],
+                                                self.get_shadow(layer.color, layer.value(x, y)),
+                                                rect)
+                                self.__screen.blit(self.__overlay_stig[i], rect, rect)
             
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
@@ -95,5 +99,7 @@ class Simulator:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         return True
+                    if event.key == pygame.K_b:
+                        self.__rend_blend = not self.__rend_blend
 
             pygame.display.update()
