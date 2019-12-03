@@ -48,7 +48,7 @@ class StigmergicLayer:
                 self.iter_release(i, j, value/4)
     """
 
-    def update_level(self, x, y, new_level):
+    def __update_level(self, x, y, new_level):
         if self.__layer[x, y] < new_level:
             self.__layer[x, y] = new_level
 
@@ -57,7 +57,6 @@ class StigmergicLayer:
         Releases the pheromone (and returns true) if the conditions are met
         """
         if(self.verify(map_value)):
-            #self.__layer[x-1:x+1, y-1:y+1] = self.__phero_value
             #Draw a circle around the release_point
             radius = self.__phero_value//self.__decay + 1
             for dy in range(radius):
@@ -70,15 +69,15 @@ class StigmergicLayer:
                     phero_level = (1-(dx**2 + dy**2)/(radius**2))*self.__phero_value
                     if x - dx > 0:
                         if y - dy > 0:
-                            self.update_level(x-dx, y-dy, phero_level)
+                            self.__update_level(x-dx, y-dy, phero_level)
                         if y + dy < self.__layer.shape[1]:   
-                            self.update_level(x-dx, y+dy, phero_level)
+                            self.__update_level(x-dx, y+dy, phero_level)
                     
                     if x + dx < self.__layer.shape[0]:
                         if y - dy > 0:
-                            self.update_level(x+dx, y-dy, phero_level)
+                            self.__update_level(x+dx, y-dy, phero_level)
                         if y + dy < self.__layer.shape[1]:                       
-                            self.update_level(x+dx, y+dy, phero_level)
+                            self.__update_level(x+dx, y+dy, phero_level)
 
 
 
