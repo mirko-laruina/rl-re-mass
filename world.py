@@ -1,5 +1,6 @@
 import numpy as np
 from agent import Agent
+from stigmergic_layer import StigmergicLayer
 import utils
 
 class World:
@@ -34,9 +35,21 @@ class World:
         self.__h = space_shape[0]
 
         self.map = np.zeros((self.__w, self.__h))
-        self.stig_wall = np.copy(self.map)
-        self.stig_boundary = np.copy(self.map)
-        self.stig_target = np.copy(self.map)
+
+        self.stig_layers = []
+        stig_bound = StigmergicLayer(self.map, utils.NO_MAP,
+                                    utils.PHERO_RELEASE_VALUE, self.__stig_evaporation_speed,
+                                    utils.OVERLAY_STIG_BOUNDARY)
+        stig_wall = StigmergicLayer(self.map, utils.WALL,
+                                    utils.PHERO_RELEASE_VALUE, self.__stig_evaporation_speed,
+                                    utils.OVERLAY_STIG_WALL)
+        stig_target = StigmergicLayer(self.map, utils.TARGET,
+                                    utils.PHERO_RELEASE_VALUE, self.__stig_evaporation_speed,
+                                    utils.OVERLAY_STIG_TARGET)                                    
+        self.stig_layers.append(stig_bound)
+        self.stig_layers.append(stig_wall)
+        self.stig_layers.append(stig_target)
+
 
         self.__generate_walls()
         self.__generate_targets()
@@ -167,11 +180,5 @@ class World:
             self.stig_evaporation()
 
     def stig_evaporation(self):
-        self.stig_wall -= self.__stig_evaporation_speed
-        self.stig_wall[self.stig_wall < 0] = 0
-
-        self.stig_boundary -= self.__stig_evaporation_speed
-        self.stig_boundary[self.stig_boundary < 0] = 0
-
-        self.stig_target -= self.__stig_evaporation_speed
-        self.stig_target[self.stig_target < 0] = 0
+        for layer in self.stig_layers:
+            layer.evaporate()

@@ -30,12 +30,14 @@ class Agent:
         y = self.__y
         for i in range(obs_matrix.shape[0]):
             for j in range(obs_matrix.shape[1]):
-                if obs_matrix[i, j] == utils.NO_MAP:
-                    self.__world.stig_boundary[x, y] = utils.PHERO_RELEASE_VALUE
-                if obs_matrix[i, j] == utils.WALL:
-                    self.__world.stig_wall[x, y] = utils.PHERO_RELEASE_VALUE
-                if obs_matrix[i, j] == utils.TARGET:
-                    self.__world.stig_target[x, y] = utils.PHERO_RELEASE_VALUE
+                if obs_matrix[i, j] == 0:
+                    continue
+
+                for layer in self.__world.stig_layers:
+                    if layer.conditional_release(obs_matrix[i, j], x, y):
+                        # If a layer is satisfied, the pheromone is released,
+                        # so we can jump to the next layer
+                        continue
 
     def move(self):
         #Temporary
