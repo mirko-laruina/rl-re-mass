@@ -109,7 +109,7 @@ class World:
         Checks if a block [x1:x2][y1:y2] is inside the map
         """
         if x1 >= 0 and x2 < self.__w:
-            if y2 >= 0 and y2 < self.__h:
+            if y1 >= 0 and y2 < self.__h:
                 return True
         return False
 
