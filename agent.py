@@ -26,14 +26,16 @@ class Agent:
         obs_matrix = self.__world.observe(base_x, base_y, size)
 
         # Release should be done at x+size/2, not x (same for y)
+        x = self.__x
+        y = self.__y
         for i in range(obs_matrix.shape[0]):
             for j in range(obs_matrix.shape[1]):
                 if obs_matrix[i, j] == utils.NO_MAP:
-                    self.__world.stig_boundary[self.__x, self.__y] = 255
+                    self.__world.stig_boundary[x, y] = utils.PHERO_RELEASE_VALUE
                 if obs_matrix[i, j] == utils.WALL:
-                    self.__world.stig_wall[self.__x, self.__y] = 255
+                    self.__world.stig_wall[x, y] = utils.PHERO_RELEASE_VALUE
                 if obs_matrix[i, j] == utils.TARGET:
-                    self.__world.stig_target[self.__x, self.__y] = 255
+                    self.__world.stig_target[x, y] = utils.PHERO_RELEASE_VALUE
 
     def move(self):
         #Temporary
