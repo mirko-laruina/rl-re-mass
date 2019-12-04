@@ -69,26 +69,23 @@ class Simulator:
         if self.__rendering:
             self.__screen.blit(self.__base_layer, (0, 0))
             self.__overlay_obs.fill(utils.OVERLAY_OBS)
-            for layer in self.__overlay_stig:
-                layer.fill(utils.EMPTY)
-
-            for x in range(self.__w):
-                for y in range(self.__h):
-
-                    # Blit stig
-                    if self.__rend_blend:
-                        for i, layer in enumerate(self.__world.stig_layers):
+           
+            if self.__rend_blend:
+                for layer in self.__overlay_stig:
+                    layer.fill(utils.EMPTY)
+                for i, layer in enumerate(self.__world.stig_layers):
+                    for x in range(self.__w):
+                        for y in range(self.__h):
+                            # Blit stig
                             if layer.value(x, y) != 0:
                                 rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                                 int(self.__dw), int(self.__dh))
                                 pygame.draw.rect(self.__overlay_stig[i],
                                                 self.get_shadow(layer.color, layer.value(x, y)),
                                                 rect)
-
-            if self.__rend_blend:
                 for layer in self.__overlay_stig:
                     self.__screen.blit(layer, (0, 0))
-
+          
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
             agents = self.__world.get_agents()
