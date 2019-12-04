@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class StigmergicLayer:
     def __init__(self, map_, release_condition, release_value, evaporation_speed, color = None, decay_speed = 20):
@@ -28,7 +29,7 @@ class StigmergicLayer:
         #x**2 + y**2 = r**2
         #x = sqrt(r**2 - y**2) = r*sqrt(1-y**2/r**2) ~= r*(1 + 0.5*(-y**2/r**2)) (taylor O(x**2))
         for dy in range(self.__radius+1):
-            self.__y_x.append(int(self.__radius*(1 - 0.5*(dy**2)/(self.__radius**2))))
+            self.__y_x.append(int(math.sqrt(self.__radius**2 - dy**2)))
 
         self.__phero_map = np.zeros((self.__radius+1, self.__radius+1))
         for dy in range(self.__radius+1):
