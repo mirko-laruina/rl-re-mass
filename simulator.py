@@ -1,6 +1,6 @@
 from world import World
 import pygame
-import time
+import gym
 import utils
 
 class Simulator:
@@ -76,8 +76,11 @@ class Simulator:
                                 pygame.draw.rect(self.__overlay_stig[i],
                                                 self.get_shadow(layer.color, layer.value(x, y)),
                                                 rect)
-                                self.__screen.blit(self.__overlay_stig[i], rect, rect)
-            
+
+            if self.__rend_blend:
+                for layer in self.__overlay_stig:
+                    self.__screen.blit(layer, (0, 0))
+
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
             agents = self.__world.get_agents()
@@ -99,7 +102,7 @@ class Simulator:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         return True
-                    if event.key == pygame.K_b:
+                    if event.key == pygame.K_s:
                         self.__rend_blend = not self.__rend_blend
 
             pygame.display.update()

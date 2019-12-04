@@ -78,10 +78,6 @@ class StigmergicLayer:
                             self.__update_level(x+dx, y-dy, phero_level)
                         if y + dy < self.__layer.shape[1]:                       
                             self.__update_level(x+dx, y+dy, phero_level)
-
-
-
-            #if self.__lay
             return True
         return False
 
