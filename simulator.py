@@ -27,6 +27,7 @@ class Simulator:
             self.__dh = self.__render_space_shape[1]/space_shape[0]
 
             self.__screen = pygame.display.set_mode(self.__render_space_shape)
+            self.__base_layer = pygame.Surface(self.__render_space_shape)
             self.__overlay_obs = pygame.Surface(self.__render_space_shape)
 
             self.__overlay_stig = []
@@ -38,6 +39,7 @@ class Simulator:
                 layer.set_alpha(128)
             
             self.__rend_blend = False
+            self.setup_rend()
 
     def move(self):
         self.__world.move()
@@ -46,26 +48,32 @@ class Simulator:
         color.a = int(alpha)
         return color
 
+    def setup_rend(self):
+        self.__base_layer.fill(utils.BG)
+        for x in range(self.__w):
+            for y in range(self.__h):
+                # Draw walls
+                if self.__world.map[x, y] == utils.WALL:
+                    rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                        int(self.__dw), int(self.__dh))
+                    pygame.draw.rect(self.__base_layer, utils.WALL_COLOR, rect)
+
+                # Draw targets
+                if self.__world.map[x, y] == utils.TARGET:
+                    rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
+                                        int(self.__dw), int(self.__dh))
+                    pygame.draw.rect(self.__base_layer, utils.TARGET_COLOR, rect)
+
+
     def render(self):
         if self.__rendering:
-            self.__screen.fill(utils.BG)
+            self.__screen.blit(self.__base_layer, (0, 0))
             self.__overlay_obs.fill(utils.OVERLAY_OBS)
             for layer in self.__overlay_stig:
                 layer.fill(utils.EMPTY)
 
             for x in range(self.__w):
                 for y in range(self.__h):
-                    # Draw walls
-                    if self.__world.map[x, y] == utils.WALL:
-                        rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
-                                            int(self.__dw), int(self.__dh))
-                        pygame.draw.rect(self.__screen, utils.WALL_COLOR, rect)
-
-                    # Draw targets
-                    if self.__world.map[x, y] == utils.TARGET:
-                        rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
-                                            int(self.__dw), int(self.__dh))
-                        pygame.draw.rect(self.__screen, utils.TARGET_COLOR, rect)
 
                     # Blit stig
                     if self.__rend_blend:
