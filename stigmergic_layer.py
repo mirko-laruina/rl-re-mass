@@ -19,6 +19,25 @@ class StigmergicLayer:
         self.__evap_speed = evaporation_speed
         self.__decay = decay_speed
         self.color = color
+
+
+        #Caching values for the release
+        self.__radius = self.__phero_value//self.__decay + 1
+        self.__y_x = []
+        
+        #x**2 + y**2 = r**2
+        #x = sqrt(r**2 - y**2) = r*sqrt(1-y**2/r**2) ~= r*(1 + 0.5*(-y**2/r**2)) (taylor O(x**2))
+        for dy in range(self.__radius+1):
+            self.__y_x.append(int(self.__radius*(1 - 0.5*(dy**2)/(self.__radius**2))))
+
+        self.__phero_map = np.zeros((self.__radius+1, self.__radius+1))
+        for dy in range(self.__radius+1):
+            #start from the top of the circle and go down
+            max_dx = self.__y_x[dy]
+            for dx in range(0, max_dx+1):
+                self.__phero_map[dx, dy] = (1-(dx**2 + dy**2)/(self.__radius**2))*self.__phero_value
+
+            
     
     def verify(self, map_value):
         """
@@ -29,7 +48,7 @@ class StigmergicLayer:
             return True
         return False
 
-    """ Too expensive
+    """ Too expensive maybe
     def iter_release(self, x, y, value):
         if value < 1:
             return
@@ -58,15 +77,9 @@ class StigmergicLayer:
         """
         if(self.verify(map_value)):
             #Draw a circle around the release_point
-            radius = self.__phero_value//self.__decay + 1
-            for dy in range(radius):
-                #start from the top of the circle and go down
-                #x**2 + y**2 = r**2
-                #x = sqrt(r**2 - y**2) = r*sqrt(1-y**2/r**2) ~= r*(1 + 0.5*(-y**2/r**2)) (taylor O(x**2))
-                max_dx = int(radius*(1 - 0.5*(dy**2)/(radius**2)))
-                
-                for dx in range(0, max_dx+1):
-                    phero_level = (1-(dx**2 + dy**2)/(radius**2))*self.__phero_value
+            for dy in range(self.__radius+1):
+                for dx in range(0, self.__y_x[dy]):
+                    phero_level = self.__phero_map[dx, dy]
                     if x - dx > 0:
                         if y - dy > 0:
                             self.__update_level(x-dx, y-dy, phero_level)
