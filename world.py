@@ -177,7 +177,7 @@ class World:
     def move(self):
         for i in range(len(self.__agents)):
             self.__agents[i].move()
-            self.stig_evaporation()
+        self.stig_evaporation()
 
     def stig_evaporation(self):
         for layer in self.stig_layers:
