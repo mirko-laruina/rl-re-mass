@@ -28,11 +28,8 @@ class Agent:
         return obs_matrix
 
     def release_pheromone(self):
-        base_x = self.__x-self.__obs_range
-        base_y = self.__y-self.__obs_range
-        size = self.__size+self.__obs_range*2
-        obs_matrix = self.__world.observe(base_x, base_y, size)
-
+        obs_matrix = self.observe()
+        
         # Release should be done at x+size/2, not x (same for y)
         x = self.__x
         y = self.__y
