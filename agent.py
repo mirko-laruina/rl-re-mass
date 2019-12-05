@@ -6,6 +6,7 @@ class Agent:
         self.__x = initial_x
         self.__y = initial_y
         self.__world = world
+        self.world = world
         self.__size = size
         self.__obs_range = obs_range
         self.__obs_shape = (size+2*obs_range, size+2*obs_range)
@@ -18,6 +19,13 @@ class Agent:
 
     def get_obs_range(self):
         return self.__obs_range
+    
+    def observe(self):
+        base_x = self.__x-self.__obs_range
+        base_y = self.__y-self.__obs_range
+        size = self.__size+self.__obs_range*2
+        obs_matrix = self.__world.observe(base_x, base_y, size)
+        return obs_matrix
 
     def release_pheromone(self):
         base_x = self.__x-self.__obs_range
