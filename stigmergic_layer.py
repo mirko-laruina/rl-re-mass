@@ -38,7 +38,7 @@ class StigmergicLayer:
             for dx in range(0, max_dx+1):
                 self.__partial_phero_map[dx, dy] = (1-(dx**2 + dy**2)/(self.__radius**2))*self.__phero_value
 
-        self.__phero_map = np.empty((2*self.__radius+2, 2*self.__radius+2))
+        self.__phero_map = np.zeros((2*self.__radius+2, 2*self.__radius+2))
         #Draw a circle around the release_point
         for dy in range(self.__radius+1):
             for dx in range(0, self.__y_x[dy]):
@@ -49,8 +49,7 @@ class StigmergicLayer:
                 self.__phero_map[x-dx, y+dy] = phero_level
                 self.__phero_map[x+dx, y-dy] = phero_level
                 self.__phero_map[x+dx, y+dy] = phero_level
-        
-    
+
     def verify(self, map_value):
         """
         True if the map cell triggers pheromone release
