@@ -34,7 +34,16 @@ class World:
         self.__w = space_shape[1]
         self.__h = space_shape[0]
 
-        self.map = np.zeros((self.__w, self.__h))
+        self.__extendend_map = np.zeros((self.__w+2*observation_range,
+                                        self.__h+2*observation_range))
+        self.__extendend_map[:,:observation_range] = utils.NO_MAP
+        self.__extendend_map[-observation_range:,:] = utils.NO_MAP
+        self.__extendend_map[:,-observation_range:] = utils.NO_MAP
+        self.__extendend_map[:observation_range, :] = utils.NO_MAP
+
+        #Notice: this creates just a reference to a subspace, doesn't allocate new memory
+        self.map = self.__extendend_map[observation_range:-observation_range,
+                                        observation_range:-observation_range]
 
         self.stig_layers = []
         stig_bound = StigmergicLayer(self.map, utils.NO_MAP,
@@ -134,13 +143,12 @@ class World:
         return True
 
     def observe(self, x, y, size):
-        obs_matrix = np.zeros((size, size))
-        for i in range(x, x+size):
-            for j in range(y, y+size):
-                if i < 0 or i >= self.__w or j < 0 or j >= self.__h:
-                    obs_matrix[i-x, j-y] = utils.NO_MAP
-                    continue
-                obs_matrix[i-x, j-y] = self.map[i, j]
+        #We are in the extended map space, so all points have to be remapped
+        min_x = x+self.__agent_obs_range
+        min_y = y+self.__agent_obs_range
+        max_x = x+size+self.__agent_obs_range
+        max_y = y+size+self.__agent_obs_range
+        obs_matrix = self.__extendend_map[min_x:max_x, min_y:max_y]
         return obs_matrix
 
     def check_agent_move(self, x, y, agent_size = 1):
