@@ -41,7 +41,7 @@ class Agent:
             for trigger in trigger_list:
                 if layer.conditional_release(trigger, x, y):
                     #layer triggered, we can go to the next one
-                    continue
+                    break
 
     def move(self):
         #Temporary
