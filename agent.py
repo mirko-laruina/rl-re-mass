@@ -33,16 +33,16 @@ class Agent:
         # Release should be done at x+size/2, not x (same for y)
         x = self.__x
         y = self.__y
-        for i in range(obs_matrix.shape[0]):
-            for j in range(obs_matrix.shape[1]):
-                if obs_matrix[i, j] == 0:
-                    continue
 
-                for layer in self.__world.stig_layers:
-                    if layer.conditional_release(obs_matrix[i, j], x, y):
-                        # If a layer is satisfied, the pheromone is released,
-                        # so we can jump to the next layer
-                        continue
+        #List of all the elements that trigger pheromone release
+        trigger_list = obs_matrix[obs_matrix != 0]
+
+        for layer in self.__world.stig_layers:
+            for trigger in trigger_list:
+                if layer.conditional_release(trigger, x, y):
+                    #layer triggered, we can go to the next one
+                    continue
+        return
 
     def move(self):
         #Temporary
