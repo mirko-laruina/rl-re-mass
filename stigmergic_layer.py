@@ -50,20 +50,20 @@ class StigmergicLayer:
                 self.__phero_map[x+dx, y-dy] = phero_level
                 self.__phero_map[x+dx, y+dy] = phero_level
 
-    def verify(self, map_value):
+    def verify(self, cell_type):
         """
         True if the map cell triggers pheromone release
         Using a function allows more customization
         """
-        if map_value == self.__cond:
+        if cell_type == self.__cond:
             return True
         return False
 
-    def conditional_release(self, map_value, x, y):
+    def conditional_release(self, cell_type, x, y):
         """
         Releases the pheromone (and returns true) if the conditions are met
         """
-        if(self.verify(map_value)):
+        if(self.verify(cell_type)):
             min_x = x-self.__radius
             max_x = x+self.__radius+1
             min_y = y-self.__radius
