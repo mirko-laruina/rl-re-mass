@@ -31,8 +31,8 @@ class Agent:
         obs_matrix = self.observe()
         
         # Release should be done at x+size/2, not x (same for y)
-        x = self.__x
-        y = self.__y
+        x = self.__x + self.__size//2
+        y = self.__y + self.__size//2
 
         #List of all the elements that trigger pheromone release
         trigger_list = obs_matrix[obs_matrix != 0]
@@ -42,7 +42,6 @@ class Agent:
                 if layer.conditional_release(trigger, x, y):
                     #layer triggered, we can go to the next one
                     continue
-        return
 
     def move(self):
         #Temporary
