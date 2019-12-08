@@ -14,8 +14,10 @@ class StigmergicLayer:
                this value can be used
         decay_speed: to be implemented, how far should the pheromone reach
         """
-        self.__layer = np.zeros(map_.shape)
+        self.__layer = np.zeros((map_.shape[0], map_.shape[1]))
+        self.layer = self.__layer
         self.__cond = release_condition
+        self.cond = self.__cond
         self.__phero_value = release_value
         self.__evap_speed = evaporation_speed
         self.__decay = decay_speed
@@ -50,36 +52,39 @@ class StigmergicLayer:
                 self.__phero_map[x+dx, y-dy] = phero_level
                 self.__phero_map[x+dx, y+dy] = phero_level
 
+    def release(self, x, y):
+        min_x = x-self.__radius
+        max_x = x+self.__radius+1
+        min_y = y-self.__radius
+        max_y = y+self.__radius+1
+        
+        
+        if min_x < 0:
+            min_x = 0
+        if max_x >= self.__layer.shape[0]:
+            max_x = self.__layer.shape[0]
+        if min_y < 0:
+            min_y = 0
+        if max_y >= self.__layer.shape[1]:
+            max_y = self.__layer.shape[1]
+        
+        new_min_x = min_x-x+self.__radius
+        new_max_x = max_x-x+self.__radius
+        new_min_y = min_y-y+self.__radius
+        new_max_y = max_y-y+self.__radius
+
+        to = self.__layer[min_x:max_x, min_y:max_y]
+        from_ = self.__phero_map[new_min_x:new_max_x, new_min_y:new_max_y]
+        #Vectorization at its finest
+        indexes = to < from_
+        to[indexes] = from_[indexes]
+
     def conditional_release(self, cell_type, x, y):
         """
         Releases the pheromone (and returns true) if the conditions are met
         """
-        if(cell_type == self.__cond):
-            min_x = x-self.__radius
-            max_x = x+self.__radius+1
-            min_y = y-self.__radius
-            max_y = y+self.__radius+1
-            
-            
-            if min_x < 0:
-                min_x = 0
-            if max_x >= self.__layer.shape[0]:
-                max_x = self.__layer.shape[0]
-            if min_y < 0:
-                min_y = 0
-            if max_y >= self.__layer.shape[1]:
-                max_y = self.__layer.shape[1]
-            
-            new_min_x = min_x-x+self.__radius
-            new_max_x = max_x-x+self.__radius
-            new_min_y = min_y-y+self.__radius
-            new_max_y = max_y-y+self.__radius
-
-            to = self.__layer[min_x:max_x, min_y:max_y]
-            from_ = self.__phero_map[new_min_x:new_max_x, new_min_y:new_max_y]
-            #Vectorization at its finest
-            indexes = to < from_
-            to[indexes] = from_[indexes]
+        if(cell_type[self.__cond] == 1):
+            self.release(x, y)
             return True
         return False
 

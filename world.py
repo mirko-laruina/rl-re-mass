@@ -34,12 +34,13 @@ class World:
         self.__w = space_shape[1]
         self.__h = space_shape[0]
 
+        self.nstigs = 3
         self.__extendend_map = np.zeros((self.__w+2*observation_range,
-                                        self.__h+2*observation_range))
-        self.__extendend_map[:,:observation_range] = utils.NO_MAP
-        self.__extendend_map[-observation_range:,:] = utils.NO_MAP
-        self.__extendend_map[:,-observation_range:] = utils.NO_MAP
-        self.__extendend_map[:observation_range, :] = utils.NO_MAP
+                                        self.__h+2*observation_range, self.nstigs))
+        self.__extendend_map[:,:observation_range, utils.NO_MAP] = 1
+        self.__extendend_map[-observation_range:,:, utils.NO_MAP] = 1
+        self.__extendend_map[:,-observation_range:, utils.NO_MAP] = 1
+        self.__extendend_map[:observation_range, :, utils.NO_MAP] = 1
 
         #Notice: this creates just a reference to a subspace, doesn't allocate new memory
         self.map = self.__extendend_map[observation_range:-observation_range,
@@ -83,7 +84,7 @@ class World:
         i = 0
         while i < self.__nwalls:
             x = self.__get_rand_x()
-            if self.map[x, 0] == utils.WALL or self.map[x, -1] == utils.WALL:
+            if self.map[x, 0, utils.WALL] or self.map[x, -1, utils.WALL]:
                 continue
 
             wall_lenght = self.__get_rand_y()*(self.__max_wall_len-self.__min_wall_len)
@@ -92,19 +93,19 @@ class World:
             wall_arr = np.full(self.__h, False)
             wall_arr[:wall_lenght] = True
             reverse = np.random.rand() < 0.5
-            self.map[x, wall_arr if not reverse else ~wall_arr] = utils.WALL
+            self.map[x, wall_arr if not reverse else ~wall_arr, utils.WALL] = 1
 
             #Check if a path is possible
             #Doesn't work properly
-            sum_ = self.map[x, wall_arr]
+            sum_ = self.map[x, wall_arr, utils.WALL]
             if x != 0:
-                sum_ += self.map[x-1, wall_arr]
+                sum_ += self.map[x-1, wall_arr, utils.WALL]
             if x != self.__w-1:
-                sum_ += self.map[x+1, wall_arr]
+                sum_ += self.map[x+1, wall_arr, utils.WALL]
                 
             sum_ = np.max(sum_)
             if sum_ > utils.WALL:
-                self.map[x, wall_arr if not reverse else ~wall_arr] = 0
+                self.map[x, wall_arr if not reverse else ~wall_arr, utils.WALL] = 0
                 continue 
 
             i+=1
@@ -118,13 +119,13 @@ class World:
         while i < self.__ntargets:
             x = self.__get_rand_x()
             y = self.__get_rand_y()
-            if self.__targets_mask[x, y] == False and self.map[x, y] == 0:
+            if self.__targets_mask[x, y] == False and np.sum(self.map[x, y]) == 0:
                 self.__targets_mask[x, y] = True
             else:
                 #We have to retry because we extracted the same target before
                 continue
             i+=1
-        self.map[self.__targets_mask] = utils.TARGET
+        self.map[self.__targets_mask, utils.TARGET] = 1
 
     def __checkmap_boundaries(self, x1, y1, x2, y2):
         """
@@ -136,9 +137,10 @@ class World:
         return False
 
     def __checkmap_free(self, x1, y1, x2, y2):
+        return not np.any(self.map[x1:x2+1, y1:y2+1])
         for i in range(x1, x2+1):
             for j in range(y1, y2+1):
-                if self.map[i, j] != 0:
+                if np.sum(self.map[i, j]) > 0:
                     return False
         return True
 
@@ -149,6 +151,9 @@ class World:
         max_x = x+size+self.__agent_obs_range
         max_y = y+size+self.__agent_obs_range
         obs_matrix = self.__extendend_map[min_x:max_x, min_y:max_y]
+        obs_matrix = list(np.transpose(obs_matrix))
+        for layer in self.stig_layers:
+            obs_matrix.append(np.asarray(layer.layer[min_x:max_x, min_y:max_y]))
         return obs_matrix
 
     def check_agent_move(self, x, y, agent_size = 1):

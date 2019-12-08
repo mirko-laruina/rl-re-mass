@@ -34,16 +34,11 @@ class Agent:
         x = self.__x + self.__size//2
         y = self.__y + self.__size//2
 
-        #List of all the elements that trigger pheromone release
-        trigger_list = obs_matrix[obs_matrix != 0]
-        
-        layers = self.__world.stig_layers.copy()
-        for trigger in trigger_list:
-            for layer in layers:
-                if layer.conditional_release(trigger, x, y):
-                    #layer triggered, we can go to the next one
-                    layers.remove(layer)
-                    break
+        #List of all the elements that trigger pheromone release        
+        layers = self.__world.stig_layers
+        for layer in layers:
+            if np.any(obs_matrix[layer.cond]):
+                layer.release(x, y)
 
     def move(self):
         #Temporary

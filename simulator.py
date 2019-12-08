@@ -53,13 +53,13 @@ class Simulator:
         for x in range(self.__w):
             for y in range(self.__h):
                 # Draw walls
-                if self.__world.map[x, y] == utils.WALL:
+                if self.__world.map[x, y, utils.WALL]:
                     rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                         int(self.__dw), int(self.__dh))
                     pygame.draw.rect(self.__base_layer, utils.WALL_COLOR, rect)
 
                 # Draw targets
-                if self.__world.map[x, y] == utils.TARGET:
+                if self.__world.map[x, y, utils.TARGET]:
                     rect = pygame.Rect(int(self.__dw*x), int(self.__dh*y),
                                         int(self.__dw), int(self.__dh))
                     pygame.draw.rect(self.__base_layer, utils.TARGET_COLOR, rect)
