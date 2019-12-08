@@ -6,7 +6,6 @@ class Agent:
         self.__x = initial_x
         self.__y = initial_y
         self.__world = world
-        self.world = world
         self.__size = size
         self.__obs_range = obs_range
         self.__obs_shape = (size+2*obs_range, size+2*obs_range)

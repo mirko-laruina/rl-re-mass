@@ -14,10 +14,8 @@ class StigmergicLayer:
                this value can be used
         decay_speed: to be implemented, how far should the pheromone reach
         """
-        self.__layer = np.zeros((map_.shape[0], map_.shape[1]))
-        self.layer = self.__layer
-        self.__cond = release_condition
-        self.cond = self.__cond
+        self.layer = np.zeros((map_.shape[0], map_.shape[1]))
+        self.cond = release_condition
         self.__phero_value = release_value
         self.__evap_speed = evaporation_speed
         self.__decay = decay_speed
@@ -61,19 +59,19 @@ class StigmergicLayer:
         
         if min_x < 0:
             min_x = 0
-        if max_x >= self.__layer.shape[0]:
-            max_x = self.__layer.shape[0]
+        if max_x >= self.layer.shape[0]:
+            max_x = self.layer.shape[0]
         if min_y < 0:
             min_y = 0
-        if max_y >= self.__layer.shape[1]:
-            max_y = self.__layer.shape[1]
+        if max_y >= self.layer.shape[1]:
+            max_y = self.layer.shape[1]
         
         new_min_x = min_x-x+self.__radius
         new_max_x = max_x-x+self.__radius
         new_min_y = min_y-y+self.__radius
         new_max_y = max_y-y+self.__radius
 
-        to = self.__layer[min_x:max_x, min_y:max_y]
+        to = self.layer[min_x:max_x, min_y:max_y]
         from_ = self.__phero_map[new_min_x:new_max_x, new_min_y:new_max_y]
         #Vectorization at its finest
         indexes = to < from_
@@ -83,14 +81,14 @@ class StigmergicLayer:
         """
         Releases the pheromone (and returns true) if the conditions are met
         """
-        if(cell_type[self.__cond] == 1):
+        if(cell_type[self.cond] == 1):
             self.release(x, y)
             return True
         return False
 
     def evaporate(self):
-        self.__layer -= self.__evap_speed
-        self.__layer[self.__layer < 0] = 0
+        self.layer -= self.__evap_speed
+        self.layer[self.layer < 0] = 0
 
     def value(self, x, y):
-        return self.__layer[x, y]
+        return self.layer[x, y]
