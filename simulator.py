@@ -2,8 +2,11 @@ from world import World
 import pygame
 import gym
 import utils
+from ray.rllib.env import MultiAgentEnv
+import gym
+import numpy as np
 
-class Simulator:
+class Simulator(MultiAgentEnv):
     def __init__(self, space_shape,
                 batch_size, agent_size,
                 ntargets, nwalls,
@@ -19,6 +22,8 @@ class Simulator:
         self.__w = space_shape[1]
         self.__h = space_shape[0]
         self.__rendering = rendering
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(6, ((agent_size+2*observation_range)**2)), dtype=np.uint8)
+        self.action_space = gym.spaces.Discrete(8)
 
         if self.__rendering:
             self.__render_space_shape = (1000, 1000)
@@ -43,6 +48,15 @@ class Simulator:
 
     def move(self):
         self.__world.move()
+
+    def reset(self):
+        return self.__world.reset()
+    
+    def step(self, actions):
+        return self.__world.step(actions)
+
+    def observe(self):
+        return self.__world.observe()
 
     def get_shadow(self, color, alpha):
         color.a = int(alpha)
@@ -89,7 +103,7 @@ class Simulator:
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
             agents = self.__world.get_agents()
-            for agent in agents:
+            for agent in agents.values():
                 x, y = agent.get_pos()
                 size = agent.get_size()
                 range_ = agent.get_obs_range()

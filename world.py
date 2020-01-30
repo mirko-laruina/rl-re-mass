@@ -23,7 +23,7 @@ class World:
         self.__batch_size = batch_size
         self.__agent_size = agent_size
         self.__agent_obs_range = observation_range
-        self.__agents = []
+        self.__agents = {}
         self.__ntargets = ntargets
         self.__nwalls = nwalls
         self.__stig_evaporation_speed = stig_evaporation_speed
@@ -47,13 +47,13 @@ class World:
                                         observation_range:-observation_range]
 
         self.stig_layers = []
-        stig_bound = StigmergicLayer(self.map, utils.NO_MAP,
+        stig_bound = StigmergicLayer(self.__extendend_map, utils.NO_MAP,
                                     utils.PHERO_RELEASE_VALUE, self.__stig_evaporation_speed,
                                     utils.OVERLAY_STIG_BOUNDARY)
-        stig_wall = StigmergicLayer(self.map, utils.WALL,
+        stig_wall = StigmergicLayer(self.__extendend_map, utils.WALL,
                                     utils.PHERO_RELEASE_VALUE, self.__stig_evaporation_speed,
                                     utils.OVERLAY_STIG_WALL)
-        stig_target = StigmergicLayer(self.map, utils.TARGET,
+        stig_target = StigmergicLayer(self.__extendend_map, utils.TARGET,
                                     utils.PHERO_RELEASE_VALUE, self.__stig_evaporation_speed,
                                     utils.OVERLAY_STIG_TARGET)                                    
         self.stig_layers.append(stig_bound)
@@ -144,17 +144,26 @@ class World:
                     return False
         return True
 
-    def observe(self, x, y, size):
+    def observe_map(self, x, y, size):
         #We are in the extended map space, so all points have to be remapped
         min_x = x+self.__agent_obs_range
         min_y = y+self.__agent_obs_range
         max_x = x+size+self.__agent_obs_range
         max_y = y+size+self.__agent_obs_range
         obs_matrix = self.__extendend_map[min_x:max_x, min_y:max_y]
-        obs_matrix = list(np.transpose(obs_matrix))
+        obs_matrix = np.transpose(obs_matrix)
         for layer in self.stig_layers:
-            obs_matrix.append(np.asarray(layer.layer[min_x:max_x, min_y:max_y]))
-        return obs_matrix
+            obs_matrix = np.append(obs_matrix, layer.layer[min_x:max_x, min_y:max_y])
+
+        return obs_matrix.reshape(6, 64)
+
+    def observe(self):
+        #Returns dict of all agents observations
+        obss = {}
+        for agent in self.__agents:
+            obss[agent] = self.__agents[agent].observe()
+
+        return obss
 
     def check_agent_move(self, x, y, agent_size = 1):
         """
@@ -180,16 +189,42 @@ class World:
             if not self.check_agent_move(x, y, self.__agent_size):
                 continue
 
-            self.__agents.append(Agent(self, x, y, self.__agent_size, self.__agent_obs_range))
-
+            self.__agents['agent_'+str(i)] = Agent(self, x, y, self.__agent_size, self.__agent_obs_range)
             i+=1
+    
+        return self.observe()
 
     def get_agents(self):
         return self.__agents
 
-    def move(self):
-        for i in range(len(self.__agents)):
-            self.__agents[i].move()
+    def reset(self):
+        self.map.fill(0)
+        for layer in self.stig_layers:
+            layer.reset()
+        self.__generate_walls()
+        self.__generate_targets()
+        return self.__initiate_agents()
+
+    def step(self, actions):
+        #Actions should be a dict where key is the agent
+        #and value is the action he should take
+
+        rewards = {}
+        dones = {}
+        for agent_name, action in actions.items():
+            reward, done = self.__agents[agent_name].step(action)
+            rewards[agent_name] = reward
+            dones[agent_name] = done
+        
+        new_obss = self.observe()
+        dones['__all__'] = any(dones.values())
+        return new_obss, rewards, dones, {}
+
+
+    def move(self):        
+        for agent in self.__agents.values():
+            agent.move(random=True)
+
         self.stig_evaporation()
 
     def stig_evaporation(self):

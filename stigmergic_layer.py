@@ -50,6 +50,9 @@ class StigmergicLayer:
                 self.__phero_map[x+dx, y-dy] = phero_level
                 self.__phero_map[x+dx, y+dy] = phero_level
 
+    def reset(self):
+        self.layer.fill(0)
+
     def release(self, x, y):
         min_x = x-self.__radius
         max_x = x+self.__radius+1
