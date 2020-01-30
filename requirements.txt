@@ -57,7 +57,7 @@ pyparsing==2.4.6
 pyrsistent==0.15.7
 PySocks==1.6.8
 pytest==5.3.4
-PyYAML==3.13
+PyYAML==5.1
 QDarkStyle==2.5.4
 qrcode==6.0
 ray==0.8.0
