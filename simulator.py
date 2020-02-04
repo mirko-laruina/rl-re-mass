@@ -1,5 +1,4 @@
 from world import World
-import pygame
 import gym
 import utils
 from ray.rllib.env import MultiAgentEnv
@@ -11,21 +10,24 @@ class Simulator(MultiAgentEnv):
                 batch_size, agent_size,
                 ntargets, nwalls,
                 observation_range, stig_evaporation_speed,
-                max_steps, rendering):
+                max_steps, rendering=False):
         self.__world = World(space_shape, batch_size,
                             agent_size, ntargets,
                             nwalls, observation_range,
                             stig_evaporation_speed)
 
         self.__max_steps = max_steps
+        self.num_agents = batch_size
+        self.n = self.num_agents
 
         self.__w = space_shape[1]
         self.__h = space_shape[0]
         self.__rendering = rendering
-        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(6, ((agent_size+2*observation_range)**2)), dtype=np.uint8)
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(6, ((agent_size+2*observation_range)**2)), dtype=np.float32)
         self.action_space = gym.spaces.Discrete(8)
 
         if self.__rendering:
+            import pygame
             self.__render_space_shape = (1000, 1000)
             #How much is the step in the render space
             self.__dw = self.__render_space_shape[0]/space_shape[1]
@@ -50,10 +52,12 @@ class Simulator(MultiAgentEnv):
         self.__world.move()
 
     def reset(self):
-        return self.__world.reset()
-    
+        retvalue = self.__world.reset()
+        return retvalue    
+
     def step(self, actions):
-        return self.__world.step(actions)
+        retvalue = self.__world.step(actions)
+        return retvalue
 
     def observe(self):
         return self.__world.observe()

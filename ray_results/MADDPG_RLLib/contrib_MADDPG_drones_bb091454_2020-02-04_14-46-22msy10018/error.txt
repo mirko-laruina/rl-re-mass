@@ -1,0 +1,34 @@
+Failure # 1 (occurred at 2020-02-04_14-46-25)
+Traceback (most recent call last):
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/tune/trial_runner.py", line 426, in _process_trial
+    result = self.trial_executor.fetch_result(trial)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/tune/ray_trial_executor.py", line 378, in fetch_result
+    result = ray.get(trial_future[0], DEFAULT_GET_TIMEOUT)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/worker.py", line 1457, in get
+    raise value.as_instanceof_cause()
+ray.exceptions.RayTaskError(ValueError): [36mray::MADDPG.__init__()[39m (pid=81951, ip=10.102.8.108)
+  File "python/ray/_raylet.pyx", line 626, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 633, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 634, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 636, in ray._raylet.execute_task
+  File "python/ray/_raylet.pyx", line 619, in ray._raylet.execute_task.function_executor
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/agents/trainer_template.py", line 90, in __init__
+    Trainer.__init__(self, config, env, logger_creator)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/agents/trainer.py", line 398, in __init__
+    Trainable.__init__(self, config, logger_creator)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/tune/trainable.py", line 96, in __init__
+    self._setup(copy.deepcopy(self.config))
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/agents/trainer.py", line 523, in _setup
+    self._init(self.config, self.env_creator)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/agents/trainer_template.py", line 109, in _init
+    self.config["num_workers"])
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/agents/trainer.py", line 568, in _make_workers
+    logdir=self.logdir)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/evaluation/worker_set.py", line 64, in __init__
+    RolloutWorker, env_creator, policy, 0, self._local_config)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/evaluation/worker_set.py", line 180, in _make_worker
+    _validate_multiagent_config(tmp, allow_none_graph=True)
+  File "/home/archie/anaconda3/envs/rl/lib/python3.7/site-packages/ray/rllib/evaluation/rollout_worker.py", line 815, in _validate_multiagent_config
+    "gym.Space, got {}".format(type(v[1])))
+ValueError: policy tuple value 1 (observation_space) must be a gym.Space, got <class 'list'>
+

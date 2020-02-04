@@ -211,10 +211,12 @@ class World:
 
         rewards = {}
         dones = {}
+        info = {}
         for agent_name, action in actions.items():
             reward, done = self.__agents[agent_name].step(action)
             rewards[agent_name] = reward
             dones[agent_name] = done
+            info[agent_name] = {}
         
         new_obss = self.observe()
         dones['__all__'] = any(dones.values())
