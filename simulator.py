@@ -24,7 +24,7 @@ class Simulator(MultiAgentEnv):
         self.__h = space_shape[0]
         self.__rendering = rendering
         self.observation_space = gym.spaces.Box(low=0, high=255, shape=(6, ((agent_size+2*observation_range)**2)), dtype=np.float32)
-        self.action_space = gym.spaces.Discrete(8)
+        self.action_space = gym.spaces.Discrete(4)
 
         if self.__rendering:
             import pygame
