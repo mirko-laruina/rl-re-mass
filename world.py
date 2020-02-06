@@ -161,7 +161,7 @@ class World:
         #Returns dict of all agents observations
         obss = {}
         for agent in self.__agents:
-            obss[agent] = self.__agents[agent].observe()
+            obss[agent] = np.array(self.__agents[agent].observe())
 
         return obss
 
@@ -195,7 +195,7 @@ class World:
         return self.observe()
 
     def get_agents(self):
-        return self.__agents
+        return tuple(self.__agents.keys())
 
     def reset(self):
         self.map.fill(0)

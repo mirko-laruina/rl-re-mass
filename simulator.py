@@ -6,11 +6,22 @@ import gym
 import numpy as np
 
 class Simulator(MultiAgentEnv):
-    def __init__(self, space_shape,
-                batch_size, agent_size,
-                ntargets, nwalls,
-                observation_range, stig_evaporation_speed,
-                max_steps, rendering=False):
+    def __init__(self, env_config=None, space_shape=None,
+                batch_size=None, agent_size=None,
+                ntargets=None, nwalls=None,
+                observation_range=None, stig_evaporation_speed=None,
+                max_steps=None, rendering=False):
+        
+        if env_config != None:
+            print(env_config)
+            space_shape = env_config['space_shape']
+            batch_size = env_config['batch_size']
+            agent_size = env_config['agent_size']
+            ntargets = env_config['ntargets']
+            nwalls = env_config['nwalls']
+            observation_range = env_config['observation_range']
+            stig_evaporation_speed = env_config['stig_evaporation_speed']
+
         self.__world = World(space_shape, batch_size,
                             agent_size, ntargets,
                             nwalls, observation_range,
@@ -23,7 +34,7 @@ class Simulator(MultiAgentEnv):
         self.__w = space_shape[1]
         self.__h = space_shape[0]
         self.__rendering = rendering
-        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(6, ((agent_size+2*observation_range)**2)), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(6, ((agent_size+2*observation_range)**2)))
         self.action_space = gym.spaces.Discrete(4)
 
         if self.__rendering:
@@ -60,7 +71,11 @@ class Simulator(MultiAgentEnv):
         return retvalue
 
     def observe(self):
+        ret = self.__world.observe()
         return self.__world.observe()
+
+    def get_agents(self):
+        return self.__world.get_agents()
 
     def get_shadow(self, color, alpha):
         color.a = int(alpha)

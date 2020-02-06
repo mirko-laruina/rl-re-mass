@@ -60,11 +60,11 @@ class Agent:
     def step(self, action):
         #Action is the direction (for now, at least)
         good = False
-        if action[0]:
+        if action == 0:
             good = self.move(-1, 0)
-        elif action[1]:
+        elif action == 1:
             good = self.move(0, 1)
-        elif action[2]:
+        elif action == 2:
             good = self.move(1, 0)
         else:
             good = self.move(0, -1)
