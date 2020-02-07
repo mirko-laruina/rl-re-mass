@@ -195,7 +195,7 @@ class World:
         return self.observe()
 
     def get_agents(self):
-        return tuple(self.__agents.keys())
+        return list(self.__agents.keys())
 
     def reset(self):
         self.map.fill(0)

@@ -21,10 +21,8 @@ params = {
 def env_creator(config):
     env = Simulator(config)
 
-    agents = ['agent_0', 'agent_1', 'agent_2', 'agent_3']
-    n_agents = 4
-    print(n_agents)
-    print(agents)
+    agents = env.get_agents()
+    n_agents = len(agents)
     grouping = {
         "group_1": agents
     }
@@ -35,10 +33,12 @@ def env_creator(config):
 register_env("drones", env_creator)
 
 config = {
-    "sample_batch_size": 4,
+    "sample_batch_size": 32,
     "train_batch_size": 32,
-    "num_workers": 0,
-    "mixer": grid_search([None, "qmix", "vdn"]),
+    "num_workers": 3,
+    "memory": 0,
+    "buffer_size": 50000,
+    "mixer": "vdn",
     "env_config": params,
 }
 
@@ -46,7 +46,7 @@ ray.init()
 tune.run(
     "QMIX",
     stop={
-        "timesteps_total": 50000,
+        "timesteps_total": 5000000,
     },
     config=dict(config, **{
         "env": "drones",
