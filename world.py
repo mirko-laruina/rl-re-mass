@@ -8,7 +8,8 @@ class World:
                 batch_size, agent_size,
                 ntargets, nwalls,
                 observation_range,
-                stig_evaporation_speed):
+                stig_evaporation_speed,
+                max_steps):
         """
         space_shape: shape of the explorable space
         batch_size: number of agents
@@ -18,6 +19,7 @@ class World:
         observation_range: space observable by a single agent,
                             calculated from its side (approximated along the diagonal)
         stig_evaporation_speed: speed at which stigmergy evaporates
+        max_steps: number of steps which terminate and episode
         
         """
         self.__batch_size = batch_size
@@ -65,6 +67,9 @@ class World:
         self.__generate_targets()
 
         self.__initiate_agents()
+
+        self.__steps = 0
+        self.__max_steps = max_steps
 
     def __get_rand_x(self):
         return int(np.random.rand()*self.__w)
@@ -219,7 +224,8 @@ class World:
             info[agent_name] = {}
         
         new_obss = self.observe()
-        dones['__all__'] = any(dones.values())
+        self.__steps += 1
+        dones['__all__'] = (any(dones.values()) or (self.__steps == self.__max_steps))
         return new_obss, rewards, dones, {}
 
 

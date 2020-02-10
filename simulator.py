@@ -21,11 +21,12 @@ class Simulator(MultiAgentEnv):
             nwalls = env_config['nwalls']
             observation_range = env_config['observation_range']
             stig_evaporation_speed = env_config['stig_evaporation_speed']
+            max_steps = env_config['max_steps']
 
         self.__world = World(space_shape, batch_size,
                             agent_size, ntargets,
                             nwalls, observation_range,
-                            stig_evaporation_speed)
+                            stig_evaporation_speed, max_steps)
 
         self.__max_steps = max_steps
         self.num_agents = batch_size
