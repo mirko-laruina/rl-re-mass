@@ -33,16 +33,16 @@ def env_creator(config):
 register_env("drones", env_creator)
 
 config = {
-    "sample_batch_size": 32,
-    "train_batch_size": 32,
+    "sample_batch_size": 1,
+    "train_batch_size": 1,
     "num_workers": 3,
     "memory": 0,
-    "buffer_size": 50000,
+    "buffer_size": 100000,
     "mixer": "vdn",
     "env_config": params,
 }
 
-ray.init()
+ray.init(object_store_memory=2e+9, redis_max_memory=10**9)
 tune.run(
     "QMIX",
     stop={
