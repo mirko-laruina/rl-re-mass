@@ -1,6 +1,7 @@
 import numpy as np
 from agent import Agent
 from stigmergic_layer import StigmergicLayer
+from ray.rllib.agents.qmix.qmix_policy import ENV_STATE
 import utils
 
 class World:
@@ -166,7 +167,7 @@ class World:
         #Returns dict of all agents observations
         obss = {}
         for agent in self.__agents:
-            obss[agent] = np.array(self.__agents[agent].observe())
+            obss[agent] = { "obs": np.array(self.__agents[agent].observe())}
 
         return obss
 
@@ -202,12 +203,16 @@ class World:
     def get_agents(self):
         return list(self.__agents.keys())
 
+    def get_agents_obj(self):
+        return list(self.__agents.values())
+
     def reset(self):
         self.map.fill(0)
         for layer in self.stig_layers:
             layer.reset()
         self.__generate_walls()
         self.__generate_targets()
+        self.__steps = 0
         return self.__initiate_agents()
 
     def step(self, actions):

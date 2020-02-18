@@ -4,6 +4,7 @@ import utils
 from ray.rllib.env import MultiAgentEnv
 import gym
 import numpy as np
+import pygame
 
 class Simulator(MultiAgentEnv):
     def __init__(self, env_config=None, space_shape=None,
@@ -13,7 +14,6 @@ class Simulator(MultiAgentEnv):
                 max_steps=None, rendering=False):
         
         if env_config != None:
-            print(env_config)
             space_shape = env_config['space_shape']
             batch_size = env_config['batch_size']
             agent_size = env_config['agent_size']
@@ -22,6 +22,7 @@ class Simulator(MultiAgentEnv):
             observation_range = env_config['observation_range']
             stig_evaporation_speed = env_config['stig_evaporation_speed']
             max_steps = env_config['max_steps']
+            rendering = env_config['rendering']
 
         self.__world = World(space_shape, batch_size,
                             agent_size, ntargets,
@@ -29,14 +30,16 @@ class Simulator(MultiAgentEnv):
                             stig_evaporation_speed, max_steps)
 
         self.__max_steps = max_steps
+        self.__steps = 0
         self.num_agents = batch_size
         self.n = self.num_agents
 
         self.__w = space_shape[1]
         self.__h = space_shape[0]
         self.__rendering = rendering
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(6, ((agent_size+2*observation_range)**2)))
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(6, ((agent_size+2*observation_range)**2)))
         self.action_space = gym.spaces.Discrete(4)
+        self.next_render = True
 
         if self.__rendering:
             import pygame
@@ -64,15 +67,17 @@ class Simulator(MultiAgentEnv):
         self.__world.move()
 
     def reset(self):
-        retvalue = self.__world.reset()
-        return retvalue    
+        return self.__world.reset()
 
     def step(self, actions):
-        retvalue = self.__world.step(actions)
-        return retvalue
+        obss, rews, dones, _ = self.__world.step(actions)
+        if self.__rendering:
+            self.render()
+            if dones['__all__']:
+                self.next_render = True
+        return obss, rews, dones, _
 
     def observe(self):
-        ret = self.__world.observe()
         return self.__world.observe()
 
     def get_agents(self):
@@ -101,6 +106,10 @@ class Simulator(MultiAgentEnv):
 
     def render(self):
         if self.__rendering:
+            if self.next_render == True:
+                next_render = False
+            self.setup_rend()
+
             self.__screen.blit(self.__base_layer, (0, 0))
             self.__overlay_obs.fill(utils.OVERLAY_OBS)
            
@@ -122,8 +131,8 @@ class Simulator(MultiAgentEnv):
           
             # Draw agents
             ## TODO: test if returning a custom struct instead of the whole agents is slower or not
-            agents = self.__world.get_agents()
-            for agent in agents.values():
+            agents = self.__world.get_agents_obj()
+            for agent in agents:
                 x, y = agent.get_pos()
                 size = agent.get_size()
                 range_ = agent.get_obs_range()
